@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WiFi Chat</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="chat-page" data-theme="green">
+  <div class="chat-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2>Online</h2>
+        <span class="badge" id="user-count">0</span>
+      </div>
+      <ul class="user-list" id="user-list"></ul>
+
+      <!-- Theme picker -->
+      <div class="sidebar-section">
+        <h3 class="sidebar-section-title">Theme</h3>
+        <div class="theme-picker" id="theme-picker">
+          <button class="theme-swatch" data-theme="green" title="Emerald (Default)"><span style="background:#10b981"></span></button>
+          <button class="theme-swatch" data-theme="blue" title="Ocean Blue"><span style="background:#3b82f6"></span></button>
+          <button class="theme-swatch" data-theme="purple" title="Royal Purple"><span style="background:#8b5cf6"></span></button>
+          <button class="theme-swatch" data-theme="red" title="Crimson"><span style="background:#ef4444"></span></button>
+          <button class="theme-swatch" data-theme="orange" title="Sunset"><span style="background:#f97316"></span></button>
+          <button class="theme-swatch" data-theme="pink" title="Rose"><span style="background:#ec4899"></span></button>
+          <button class="theme-swatch" data-theme="cyan" title="Teal"><span style="background:#06b6d4"></span></button>
+          <button class="theme-swatch" data-theme="light" title="Light"><span style="background:#f0f0f0; border:1px solid #ccc"></span></button>
+        </div>
+      </div>
+
+      <!-- Admin panel (hidden for non-admins) -->
+      <div class="sidebar-section admin-panel" id="admin-panel" style="display:none;">
+        <h3 class="sidebar-section-title">Admin</h3>
+        <div class="admin-pin-form">
+          <input type="text" id="new-pin-input" placeholder="New PIN" maxlength="10">
+          <button id="btn-change-pin" class="btn-sm">Change</button>
+        </div>
+        <p class="admin-pin-status" id="pin-status"></p>
+      </div>
+
+      <!-- QR Code button -->
+      <div class="sidebar-section">
+        <button class="btn-qr-sidebar" id="btn-qr-sidebar">Show QR Code</button>
+        <div class="qr-sidebar-box" id="qr-sidebar-box" style="display:none;">
+          <img id="qr-sidebar-img" alt="QR Code" />
+          <p class="qr-url-small" id="qr-sidebar-url"></p>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <span class="current-user">Logged in as <strong><%= username %></strong> <% if (role === 'admin') { %><span class="admin-badge">ADMIN</span><% } %></span>
+        <a href="/logout" class="btn-logout">Leave</a>
+      </div>
+    </aside>
+
+    <!-- Main chat area -->
+    <main class="chat-main">
+      <!-- Top bar (mobile) -->
+      <header class="chat-header">
+        <button class="btn-menu" id="btn-menu" aria-label="Toggle sidebar">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <h1>WiFi Chat</h1>
+        <a href="/logout" class="btn-logout-mobile" title="Leave">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </a>
+      </header>
+
+      <!-- Messages -->
+      <div class="messages-area" id="messages-area">
+        <div class="messages-inner" id="messages"></div>
+        <div class="typing-indicator" id="typing-indicator"></div>
+      </div>
+
+      <!-- Input -->
+      <form class="message-form" id="message-form">
+        <input type="text" id="message-input" placeholder="Type a message…" maxlength="1000" autocomplete="off" autofocus>
+        <button type="submit" id="btn-send" aria-label="Send">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </form>
+    </main>
+  </div>
+
+  <!-- Pass data to client -->
+  <script>
+    const MY_USERNAME = "<%= username %>";
+    const MY_ROLE = "<%= role %>";
+  </script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/chat.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "name": "wifi-chat",
+  "version": "1.0.0",
+  "description": "Real-time chat app for devices on the same WiFi network",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "keywords": [
+    "chat",
+    "wifi",
+    "realtime"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "ejs": "^5.0.2",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.3"
+  },
+  "engines": {
+    "node": ">=20.0.0 <25.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

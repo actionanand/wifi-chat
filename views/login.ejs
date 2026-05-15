@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WiFi Chat – Login</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="login-page" data-theme="green">
+  <div class="login-container">
+    <div class="login-card">
+      <div class="logo">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
+      <h1>WiFi Chat</h1>
+      <p class="subtitle">Chat with anyone on your network</p>
+
+      <!-- QR Code -->
+      <div class="qr-section" id="qr-section">
+        <button type="button" class="btn-qr-toggle" id="btn-qr-toggle">Show QR Code</button>
+        <div class="qr-box" id="qr-box" style="display:none;">
+          <img id="qr-img" alt="QR Code" />
+          <p class="qr-url" id="qr-url"></p>
+        </div>
+      </div>
+
+      <% if (error) { %>
+        <div class="error-banner"><%= error %></div>
+      <% } %>
+      <% if (success) { %>
+        <div class="success-banner"><%= success %></div>
+      <% } %>
+
+      <form action="/login" method="POST" autocomplete="off">
+        <div class="input-group">
+          <label for="username">Display Name</label>
+          <input type="text" id="username" name="username" placeholder="Enter your name" maxlength="20" required autofocus>
+        </div>
+        <div class="input-group">
+          <label for="pin">PIN</label>
+          <input type="password" id="pin" name="pin" placeholder="Enter PIN" maxlength="10" required inputmode="numeric">
+        </div>
+        <div class="input-group role-group">
+          <label>Join as</label>
+          <div class="role-options">
+            <label class="role-label">
+              <input type="radio" name="role" value="user" checked> User
+            </label>
+            <label class="role-label">
+              <input type="radio" name="role" value="admin"> Admin
+            </label>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Join Chat</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Load QR code
+    document.getElementById('btn-qr-toggle').addEventListener('click', async function() {
+      const box = document.getElementById('qr-box');
+      if (box.style.display === 'none') {
+        try {
+          const res = await fetch('/qr');
+          const data = await res.json();
+          document.getElementById('qr-img').src = data.qr;
+          document.getElementById('qr-url').textContent = data.url;
+          box.style.display = 'block';
+          this.textContent = 'Hide QR Code';
+        } catch { /* ignore */ }
+      } else {
+        box.style.display = 'none';
+        this.textContent = 'Show QR Code';
+      }
+    });
+
+    // Apply saved theme
+    const saved = localStorage.getItem('wifi-chat-theme') || 'green';
+    document.body.setAttribute('data-theme', saved);
+  </script>
+</body>
+</html>
