@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WiFi Chat</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="chat-page" data-theme="green">
@@ -41,12 +42,41 @@
         <p class="admin-pin-status" id="pin-status"></p>
       </div>
 
-      <!-- QR Code button -->
+      <!-- QR Code -->
       <div class="sidebar-section">
         <button class="btn-qr-sidebar" id="btn-qr-sidebar">Show QR Code</button>
         <div class="qr-sidebar-box" id="qr-sidebar-box" style="display:none;">
           <img id="qr-sidebar-img" alt="QR Code" />
           <p class="qr-url-small" id="qr-sidebar-url"></p>
+        </div>
+      </div>
+
+      <!-- Network / WSL info -->
+      <div class="sidebar-section" id="network-info-section">
+        <h3 class="sidebar-section-title">Network</h3>
+        <div class="network-info" id="network-info">
+          <% if (networkInfo.isWSL) { %>
+            <p class="net-label"><%= networkInfo.envLabel %></p>
+            <p class="net-url">URL: <strong>http://<%= networkInfo.lanIP %>:<%= networkInfo.port %></strong></p>
+            <% if (networkInfo.isWSL2) { %>
+              <p class="net-hint">WSL IP: <%= networkInfo.wslIP %></p>
+              <details class="net-details">
+                <summary>Port forwarding needed</summary>
+                <p>Run in <strong>Admin PowerShell</strong> (one-time):</p>
+                <code class="net-cmd">netsh interface portproxy add v4tov4 listenport=<%= networkInfo.port %> listenaddress=0.0.0.0 connectport=<%= networkInfo.port %> connectaddress=<%= networkInfo.wslIP %></code>
+                <p style="margin-top:6px;">Then allow firewall:</p>
+                <code class="net-cmd">netsh advfirewall firewall add rule name="WiFiChat" dir=in action=allow protocol=TCP localport=<%= networkInfo.port %></code>
+              </details>
+            <% } else { %>
+              <details class="net-details">
+                <summary>Can't connect from phone?</summary>
+                <p>WSL1 shares the Windows network, but the firewall may block it. Run in <strong>Admin PowerShell</strong>:</p>
+                <code class="net-cmd">netsh advfirewall firewall add rule name="WiFiChat" dir=in action=allow protocol=TCP localport=<%= networkInfo.port %></code>
+              </details>
+            <% } %>
+          <% } else { %>
+            <p class="net-url">URL: <strong>http://<%= networkInfo.lanIP %>:<%= networkInfo.port %></strong></p>
+          <% } %>
         </div>
       </div>
 
@@ -87,8 +117,8 @@
 
   <!-- Pass data to client -->
   <script>
-    const MY_USERNAME = "<%= username %>";
-    const MY_ROLE = "<%= role %>";
+    var MY_USERNAME = "<%= username %>";
+    var MY_ROLE = "<%= role %>";
   </script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/chat.js"></script>

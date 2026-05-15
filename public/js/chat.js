@@ -1,37 +1,37 @@
 (() => {
   'use strict';
 
-  const socket = io();
+  var socket = io();
 
   // DOM refs
-  const messagesEl    = document.getElementById('messages');
-  const messagesArea  = document.getElementById('messages-area');
-  const form          = document.getElementById('message-form');
-  const input         = document.getElementById('message-input');
-  const typingEl      = document.getElementById('typing-indicator');
-  const userListEl    = document.getElementById('user-list');
-  const userCountEl   = document.getElementById('user-count');
-  const sidebar       = document.getElementById('sidebar');
-  const btnMenu       = document.getElementById('btn-menu');
+  var messagesEl   = document.getElementById('messages');
+  var messagesArea = document.getElementById('messages-area');
+  var form         = document.getElementById('message-form');
+  var input        = document.getElementById('message-input');
+  var typingEl     = document.getElementById('typing-indicator');
+  var userListEl   = document.getElementById('user-list');
+  var userCountEl  = document.getElementById('user-count');
+  var sidebar      = document.getElementById('sidebar');
+  var btnMenu      = document.getElementById('btn-menu');
 
-  let typingTimeout = null;
-  let isTyping = false;
+  var typingTimeout = null;
+  var isTyping = false;
 
-  // �── Theme ───────────────────────────────────────────────────────
-  const savedTheme = localStorage.getItem('wifi-chat-theme') || 'green';
+  // ── Theme ──────────────────────────────────────────────────────
+  var savedTheme = localStorage.getItem('wifi-chat-theme') || 'green';
   document.body.setAttribute('data-theme', savedTheme);
 
   function setActiveThemeSwatch() {
-    const current = document.body.getAttribute('data-theme');
-    document.querySelectorAll('.theme-swatch').forEach(btn => {
+    var current = document.body.getAttribute('data-theme');
+    document.querySelectorAll('.theme-swatch').forEach(function(btn) {
       btn.classList.toggle('active', btn.dataset.theme === current);
     });
   }
 
-  document.getElementById('theme-picker').addEventListener('click', (e) => {
-    const swatch = e.target.closest('.theme-swatch');
+  document.getElementById('theme-picker').addEventListener('click', function(e) {
+    var swatch = e.target.closest('.theme-swatch');
     if (!swatch) return;
-    const theme = swatch.dataset.theme;
+    var theme = swatch.dataset.theme;
     document.body.setAttribute('data-theme', theme);
     localStorage.setItem('wifi-chat-theme', theme);
     setActiveThemeSwatch();
@@ -39,17 +39,17 @@
 
   setActiveThemeSwatch();
 
-  // ── Admin Panel ─────────────────────────────────────────────────
+  // ── Admin Panel ────────────────────────────────────────────────
   if (MY_ROLE === 'admin') {
-    const adminPanel = document.getElementById('admin-panel');
+    var adminPanel = document.getElementById('admin-panel');
     if (adminPanel) adminPanel.style.display = '';
 
-    const btnChangePin = document.getElementById('btn-change-pin');
-    const newPinInput  = document.getElementById('new-pin-input');
-    const pinStatus    = document.getElementById('pin-status');
+    var btnChangePin = document.getElementById('btn-change-pin');
+    var newPinInput  = document.getElementById('new-pin-input');
+    var pinStatus    = document.getElementById('pin-status');
 
-    btnChangePin.addEventListener('click', () => {
-      const newPin = newPinInput.value.trim();
+    btnChangePin.addEventListener('click', function() {
+      var newPin = newPinInput.value.trim();
       if (!newPin || newPin.length < 1 || newPin.length > 10) {
         pinStatus.textContent = 'PIN must be 1-10 characters.';
         return;
@@ -58,42 +58,40 @@
       newPinInput.value = '';
     });
 
-    newPinInput.addEventListener('keydown', (e) => {
+    newPinInput.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') {
         e.preventDefault();
         btnChangePin.click();
       }
     });
 
-    socket.on('pin-changed', (pin) => {
+    socket.on('pin-changed', function(pin) {
       pinStatus.textContent = 'PIN changed to: ' + pin;
-      setTimeout(() => { pinStatus.textContent = ''; }, 4000);
+      setTimeout(function() { pinStatus.textContent = ''; }, 4000);
     });
   }
 
-  // ── QR Code (sidebar) ──────────────────────────────────────────
-  const btnQr = document.getElementById('btn-qr-sidebar');
-  const qrBox = document.getElementById('qr-sidebar-box');
+  // ── QR Code (sidebar) ─────────────────────────────────────────
+  var btnQr = document.getElementById('btn-qr-sidebar');
+  var qrBox = document.getElementById('qr-sidebar-box');
 
-  btnQr.addEventListener('click', async () => {
+  btnQr.addEventListener('click', function() {
     if (qrBox.style.display !== 'none') {
       qrBox.style.display = 'none';
       btnQr.textContent = 'Show QR Code';
       return;
     }
-    try {
-      const res = await fetch('/qr');
-      const data = await res.json();
+    fetch('/qr').then(function(res) { return res.json(); }).then(function(data) {
       document.getElementById('qr-sidebar-img').src = data.qr;
       document.getElementById('qr-sidebar-url').textContent = data.url;
       qrBox.style.display = 'block';
       btnQr.textContent = 'Hide QR Code';
-    } catch { /* ignore */ }
+    }).catch(function() {});
   });
 
-  // ── Helpers ─────────────────────────────────────────────────────
+  // ── Helpers ────────────────────────────────────────────────────
   function escapeHTML(str) {
-    const div = document.createElement('div');
+    var div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
   }
@@ -103,11 +101,10 @@
   }
 
   function createMessageEl(msg) {
-    const isSelf = msg.username === MY_USERNAME;
-    const div = document.createElement('div')
+    var isSelf = msg.username === MY_USERNAME;
+    var div = document.createElement('div');
     div.className = 'msg ' + (isSelf ? 'msg-self' : 'msg-other');
-
-    let html = '';
+    var html = '';
     if (!isSelf) {
       html += '<div class="msg-author">' + escapeHTML(msg.username) + '</div>';
     }
@@ -118,140 +115,137 @@
   }
 
   function createSystemEl(msg) {
-    const div = document.createElement('div');
+    var div = document.createElement('div');
     div.className = 'msg-system';
     div.textContent = msg.text + ' \u00b7 ' + msg.time;
     return div;
   }
 
-  // ── Chat history ────────────────────────────────────────────────
-  socket.on('chat-history', (history) => {
+  // ── Chat history ───────────────────────────────────────────────
+  socket.on('chat-history', function(history) {
     messagesEl.innerHTML = '';
-    history.forEach((msg) => {
+    history.forEach(function(msg) {
       messagesEl.appendChild(createMessageEl(msg));
     });
     scrollToBottom();
   });
 
-  // ── New message ──────────────────────────────────────
-  socket.on('new-message', (msg) => {
+  // ── New message ────────────────────────────────────────────────
+  socket.on('new-message', function(msg) {
     messagesEl.appendChild(createMessageEl(msg));
     scrollToBottom();
-
-    if (document.hidden && msg.us
-
+    if (document.hidden && msg.username !== MY_USERNAME) {
+      document.title = '(New) WiFi Chat';
     }
   });
 
-  // �── System message ──────────────────────────────────────
-  socket.on('system-message', (msg) => {
+  // ── System message ─────────────────────────────────────────────
+  socket.on('system-message', function(msg) {
     messagesEl.appendChild(createSystemEl(msg));
-  
+    scrollToBottom();
   });
 
-  // �── Online users ───────────────
-  sock
+  // ── Online users ───────────────────────────────────────────────
+  socket.on('online-users', function(users) {
     userCountEl.textContent = users.length;
     userListEl.innerHTML = '';
-    users.sort().forEach((u) => {
-      const li = document.createElement('li');
+    users.sort().forEach(function(u) {
+      var li = document.createElement('li');
       li.textContent = u;
-      if (u === MY_USERNAME) li.style.fontWei
+      if (u === MY_USERNAME) li.style.fontWeight = '600';
       userListEl.appendChild(li);
     });
   });
 
-  // �── Typing ──────────────────────────────────────
-  const typingUsers = new Set();
+  // ── Typing ─────────────────────────────────────────────────────
+  var typingUsers = new Set();
 
-  socket.on('user-typing', (username) => {
+  socket.on('user-typing', function(username) {
     typingUsers.add(username);
     renderTyping();
-  
+  });
 
-  socket.on('user-stop-typing', (username) => {
-  
+  socket.on('user-stop-typing', function(username) {
+    typingUsers.delete(username);
     renderTyping();
   });
 
   function renderTyping() {
     if (typingUsers.size === 0) {
-      typingEl.textCo
+      typingEl.textContent = '';
     } else if (typingUsers.size === 1) {
-      typingEl.textContent = [...typingUsers][0] + ' is typing\u2026';
+      typingEl.textContent = Array.from(typingUsers)[0] + ' is typing\u2026';
     } else {
       typingEl.textContent = typingUsers.size + ' people are typing\u2026';
     }
   }
 
-  // ── Send message ────
-  form.addEventListener('submit', (e) => {
+  // ── Send message ───────────────────────────────────────────────
+  form.addEventListener('submit', function(e) {
     e.preventDefault();
-    const text = input.value.trim();
+    var text = input.value.trim();
     if (!text) return;
-
     socket.emit('send-message', text);
     input.value = '';
     input.focus();
-
     if (isTyping) {
       socket.emit('stop-typing');
       isTyping = false;
     }
   });
 
-  // �── Typing events ──────────────────────────────────────────────
-  input.addEventListener('input', () => {
-    if (!isTypi
+  // ── Typing events ──────────────────────────────────────────────
+  input.addEventListener('input', function() {
+    if (!isTyping) {
       isTyping = true;
       socket.emit('typing');
     }
     clearTimeout(typingTimeout);
-    typingTimeout = setTimeout(() => {
+    typingTimeout = setTimeout(function() {
       isTyping = false;
       socket.emit('stop-typing');
     }, 1500);
   });
 
-  // ── Reset title on
-  document.addEventListener('visibilitychange', () => {
+  // ── Reset title on focus ───────────────────────────────────────
+  document.addEventListener('visibilitychange', function() {
     if (!document.hidden) {
       document.title = 'WiFi Chat';
     }
   });
 
   // ── Mobile sidebar toggle ──────────────────────────────────────
-  le
+  var overlay = document.querySelector('.sidebar-overlay');
   if (!overlay) {
     overlay = document.createElement('div');
     overlay.className = 'sidebar-overlay';
     document.body.appendChild(overlay);
   }
 
-  btnMenu.addEventListener('
+  btnMenu.addEventListener('click', function() {
     sidebar.classList.toggle('open');
     overlay.classList.toggle('active');
   });
 
-  overlay.addEventListener('click', () => {
-    
+  overlay.addEventListener('click', function() {
+    sidebar.classList.remove('open');
     overlay.classList.remove('active');
   });
 
-  // ── Reconnection ───────────────────────────────────────────────
-  soc
+  // ── Reconnection ──────────────────────────────────────────────
+  socket.on('disconnect', function() {
     messagesEl.appendChild(createSystemEl({
-      text: 'Connectio
+      text: 'Connection lost. Reconnecting...',
       time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
     }));
-    scrol
+    scrollToBottom();
   });
 
-  socket.on('connect', () => {
+  socket.on('connect', function() {
     if (messagesEl.children.length > 0) {
       messagesEl.appendChild(createSystemEl({
         text: 'Reconnected!',
-        time: new Date().toLocaleT
+        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
       }));
       scrollToBottom();
     }

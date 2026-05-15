@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404 – WiFi Chat</title>
+  <title>404 — WiFi Chat</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="page-404" data-theme="green">
@@ -13,7 +14,7 @@
     <a href="/">Go to Chat</a>
   </div>
   <script>
-    const saved = localStorage.getItem('wifi-chat-theme') || 'green';
+    var saved = localStorage.getItem('wifi-chat-theme') || 'green';
     document.body.setAttribute('data-theme', saved);
   </script>
 </body>

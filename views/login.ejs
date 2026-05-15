@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WiFi Chat – Login</title>
+  <title>WiFi Chat — Login</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="login-page" data-theme="green">
@@ -18,7 +19,7 @@
       <p class="subtitle">Chat with anyone on your network</p>
 
       <!-- QR Code -->
-      <div class="qr-section" id="qr-section">
+      <div class="qr-section">
         <button type="button" class="btn-qr-toggle" id="btn-qr-toggle">Show QR Code</button>
         <div class="qr-box" id="qr-box" style="display:none;">
           <img id="qr-img" alt="QR Code" />
@@ -27,20 +28,20 @@
       </div>
 
       <% if (error) { %>
-        <div class="error-banner"><%= error %></div>
+        <div class="alert alert-error"><%= error %></div>
       <% } %>
       <% if (success) { %>
-        <div class="success-banner"><%= success %></div>
+        <div class="alert alert-success"><%= success %></div>
       <% } %>
 
       <form action="/login" method="POST" autocomplete="off">
         <div class="input-group">
           <label for="username">Display Name</label>
-          <input type="text" id="username" name="username" placeholder="Enter your name" maxlength="20" required autofocus>
+          <input type="text" id="username" name="username" placeholder="Enter your name" maxlength="20" required autofocus class="input">
         </div>
         <div class="input-group">
           <label for="pin">PIN</label>
-          <input type="password" id="pin" name="pin" placeholder="Enter PIN" maxlength="10" required inputmode="numeric">
+          <input type="password" id="pin" name="pin" placeholder="Enter PIN" maxlength="10" required inputmode="numeric" class="input">
         </div>
         <div class="input-group role-group">
           <label>Join as</label>
@@ -53,32 +54,29 @@
             </label>
           </div>
         </div>
-        <button type="submit" class="btn-primary">Join Chat</button>
+        <button type="submit" class="btn btn-primary btn-block">Join Chat</button>
       </form>
     </div>
   </div>
 
   <script>
-    // Load QR code
     document.getElementById('btn-qr-toggle').addEventListener('click', async function() {
-      const box = document.getElementById('qr-box');
+      var box = document.getElementById('qr-box');
       if (box.style.display === 'none') {
         try {
-          const res = await fetch('/qr');
-          const data = await res.json();
+          var res = await fetch('/qr');
+          var data = await res.json();
           document.getElementById('qr-img').src = data.qr;
           document.getElementById('qr-url').textContent = data.url;
           box.style.display = 'block';
           this.textContent = 'Hide QR Code';
-        } catch { /* ignore */ }
+        } catch(e) { /* ignore */ }
       } else {
         box.style.display = 'none';
         this.textContent = 'Show QR Code';
       }
     });
-
-    // Apply saved theme
-    const saved = localStorage.getItem('wifi-chat-theme') || 'green';
+    var saved = localStorage.getItem('wifi-chat-theme') || 'green';
     document.body.setAttribute('data-theme', saved);
   </script>
 </body>
